@@ -10,7 +10,7 @@ namespace ops {
  * @param x Input tensor
  * @return Output tensor, same shape as x
  */
-TensorView silu(const TensorView& x);
+Tensor silu(const TensorView& x);
 
 /**
  * GELU activation with tanh approximation
@@ -19,7 +19,7 @@ TensorView silu(const TensorView& x);
  * @param approximate Use tanh approximation if true
  * @return Output tensor, same shape as x
  */
-TensorView gelu(const TensorView& x, bool approximate = true);
+Tensor gelu(const TensorView& x, bool approximate = true);
 
 } // namespace ops
 } // namespace ie

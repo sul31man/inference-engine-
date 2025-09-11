@@ -12,7 +12,7 @@ namespace ops {
  * @param bias Optional bias tensor [D_out] (can be null)
  * @return Output tensor [N, D_out]
  */
-TensorView linear(const TensorView& x, const TensorView& W, const TensorView* bias = nullptr);
+Tensor linear(const TensorView& x, const TensorView& W, const TensorView* bias = nullptr);
 
 } // namespace ops
 } // namespace ie
