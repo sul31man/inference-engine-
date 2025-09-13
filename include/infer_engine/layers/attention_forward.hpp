@@ -6,10 +6,10 @@ namespace ie {
 namespace layers {
 
 struct AttentionWeights {
-    TensorView Wq;    // [d_model, n_heads * head_dim]
-    TensorView Wk;    // [d_model, n_heads * head_dim] 
-    TensorView Wv;    // [d_model, n_heads * head_dim]
-    TensorView Wo;    // [n_heads * head_dim, d_model]
+    TensorView Wq;    // [d_model, n_q_heads * head_dim]
+    TensorView Wk;    // [d_model, n_kv_heads * head_dim] - GQA: fewer heads
+    TensorView Wv;    // [d_model, n_kv_heads * head_dim] - GQA: fewer heads
+    TensorView Wo;    // [n_q_heads * head_dim, d_model]
     
     // Optional biases
     TensorView* bq = nullptr;
@@ -20,10 +20,14 @@ struct AttentionWeights {
 
 struct AttentionConfig {
     int64_t d_model{0};
-    int64_t n_heads{0};
+    int64_t n_q_heads{0};         // Query heads (e.g., 32)
+    int64_t n_kv_heads{0};        // Key/Value heads (e.g., 8 for GQA)
     int64_t head_dim{0};
     float rope_theta{10000.0f};
     int64_t rope_dim{0};  // 0 = use full head_dim
+    
+    // Computed properties
+    int64_t gqa_group_size() const { return n_q_heads / n_kv_heads; }
 };
 
 /**

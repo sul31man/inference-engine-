@@ -15,9 +15,9 @@ namespace ops {
  * @param theta_base Base for computing rotation frequencies
  * @return Tuple of (rotated_q, rotated_k)
  */
-std::tuple<TensorView, TensorView> rope_apply(
-    const TensorView& q, 
-    const TensorView& k, 
+std::tuple<Tensor, Tensor> rope_apply(
+    const TensorView& q,
+    const TensorView& k,
     const TensorView& pos,
     int rotary_dim = 0,
     float theta_base = 10000.0f

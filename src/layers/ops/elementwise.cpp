@@ -46,6 +46,7 @@ Tensor apply_causal_mask(const TensorView& scores, int64_t seq_pos) {
     }
     
     return output;
+
 }
 
 } // namespace ops

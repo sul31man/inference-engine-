@@ -36,7 +36,15 @@ Tensor mlp_forward(
     // Step 3: Element-wise multiply (gating)
     //   hidden = gate * up                                 // [1, d_ff]
     //
-    Tensor hidden = ie::ops::multiply(gate.view, up.view);
+    // Element-wise multiply (gate * up) – implement inplace here for now
+    Tensor hidden = Tensor::empty(gate.view.shape, gate.view.dt);
+    {
+        const float* g = gate.view.ptr<const float>();
+        const float* u = up.view.ptr<const float>();
+        float* h = hidden.view.ptr<float>();
+        int64_t N = gate.view.numel();
+        for (int64_t i = 0; i < N; ++i) h[i] = g[i] * u[i];
+    }
     
     // Step 4: Down projection
     //   output = linear(hidden, weights.W2, weights.b2)    // [1, d_model]

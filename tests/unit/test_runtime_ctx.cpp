@@ -9,7 +9,14 @@ int main() {
     std::cout << "RuntimeCtx forward_decode test skeleton...\n";
 
     // Minimal cfg
-    ModelCfg cfg{ /* d_model */ 64, /* n_layers */ 1, /* n_heads */ 4, /* vocab_size */ 32000, /* rope_theta */ 10000.0f, /* rope_dim */ 0 };
+    ModelCfg cfg{};
+    cfg.d_model = 64;
+    cfg.n_layers = 1;
+    cfg.n_heads = 4;
+    cfg.n_kv_heads = 4;
+    cfg.vocab_size = 32000;
+    cfg.rope_theta = 10000.0f;
+    cfg.rope_dim = 0;
 
     // TODO: Construct ModelWeights with small tensors bound to views
     ModelWeights weights{ /* fill fields with TensorViews */ };

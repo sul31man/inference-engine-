@@ -25,7 +25,8 @@ int main() {
         // Setup attention config and weights
         AttentionConfig attn_cfg;
         attn_cfg.d_model = d_model;
-        attn_cfg.n_heads = n_heads;
+        attn_cfg.n_q_heads = n_heads;
+        attn_cfg.n_kv_heads = n_heads; // simple case
         attn_cfg.head_dim = head_dim;
         attn_cfg.rope_theta = 10000.0f;
         attn_cfg.rope_dim = head_dim;
@@ -44,9 +45,10 @@ int main() {
         KVCacheConfig cache_cfg;
         cache_cfg.num_layers = 1;
         cache_cfg.max_seq_len = seq_len;
-        cache_cfg.num_heads = n_heads;
+        cache_cfg.num_q_heads = n_heads;
+        cache_cfg.num_kv_heads = n_heads;
         cache_cfg.head_dim = head_dim;
-        cache_cfg.dtype = DType::F32;
+        cache_cfg.dtype = DType::F16;
         
         KVCache cache(cache_cfg);
 

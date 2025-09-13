@@ -2,6 +2,7 @@
 #include <cstdint> 
 #include <stdexcept> 
 #include <string> 
+#include <vector>
 
 
 namespace ie{
@@ -35,7 +36,6 @@ struct Shape {
 
 
 };
-
 
 
 

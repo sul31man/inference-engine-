@@ -1,0 +1,1 @@
+/opt/homebrew/opt/llvm/bin/clang++ -O3 -DNDEBUG -O3 -march=native -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names -L/opt/homebrew/opt/llvm/lib CMakeFiles/inspect_safetensors.dir/examples/inspect_safetensors.cpp.o -o inspect_safetensors  libinfer_engine.a -framework Accelerate /opt/homebrew/opt/llvm/lib/libomp.dylib

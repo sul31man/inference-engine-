@@ -6,7 +6,7 @@
 namespace ie {
 namespace ops {
 
-std::tuple<TensorView, TensorView> rope_apply(
+std::tuple<Tensor, Tensor> rope_apply(
     const TensorView& q, 
     const TensorView& k, 
     const TensorView& pos,
@@ -68,7 +68,7 @@ std::tuple<TensorView, TensorView> rope_apply(
         }
     }
 
-    return std::make_tuple(q_out_t.view, k_out_t.view);
+    return std::make_tuple(std::move(q_out_t), std::move(k_out_t));
 }
 
 } // namespace ops

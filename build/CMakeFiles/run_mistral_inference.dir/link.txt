@@ -1,0 +1,1 @@
+/opt/homebrew/opt/llvm/bin/clang++ -O3 -DNDEBUG -O3 -march=native -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names -L/opt/homebrew/opt/llvm/lib CMakeFiles/run_mistral_inference.dir/examples/run_mistral_inference.cpp.o -o run_mistral_inference  libinfer_engine.a -framework Accelerate /opt/homebrew/opt/llvm/lib/libomp.dylib

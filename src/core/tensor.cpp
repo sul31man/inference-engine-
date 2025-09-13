@@ -1,5 +1,6 @@
 #include "infer_engine/core/tensor.hpp"
 #include <cmath>
+#include <bit>
 #include <cstring>
 
 namespace ie {
@@ -29,15 +30,15 @@ static inline float f16_to_f32(uint16_t h) {
 
 
 static inline float bf16_to_f32(uint16_t b) {
-  uint32_t bits = ((uint32_t)b) << 16;\
-  
+  uint32_t bits = ((uint32_t)b) << 16;
   return std::bit_cast<float>(bits);
 }
 
 
 
 Tensor astype_copy(const TensorView& src, DType dst) {
-  IE_CHECK(src.is_contiguous(), "astype_copy requires contiguous src");
+  // naive assert replacement; implement IE_CHECK or proper error handling
+  if (!src.is_contiguous()) { throw std::runtime_error("astype_copy requires contiguous src"); }
   auto out = Tensor::empty(src.shape, dst);
 
   if (src.dt == dst) {
@@ -58,12 +59,12 @@ Tensor astype_copy(const TensorView& src, DType dst) {
       const int8_t* p = src.ptr<const int8_t>();
       for (int64_t i = 0; i < N; ++i) o[i] = (float)p[i];
     } else {
-      IE_CHECK(false, "unsupported src->f32");
+      throw std::runtime_error("unsupported src->f32");
     }
     return out;
   }
 
-  IE_CHECK(false, "Only conversions to f32 implemented in Day1");
+  throw std::runtime_error("Only conversions to f32 implemented in Day1");
   return out;
 }
 

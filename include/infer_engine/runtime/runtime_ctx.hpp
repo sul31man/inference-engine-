@@ -10,6 +10,7 @@ namespace ie {
 class RuntimeCtx {
 public:
     RuntimeCtx(const ModelCfg& cfg, const ModelWeights& weights);
+    RuntimeCtx(const ModelCfg& cfg, const ModelWeights& weights, int64_t max_seq_len);
 
     // Forward one decode step: input token_id at position pos -> logits [vocab_size]
     Tensor forward_decode(int32_t token_id, int64_t pos);

@@ -1,0 +1,52 @@
+Summary
+------
+The runtime was crashing and using excessive memory when running Mistral-7B with GQA (n_heads=32, n_kv_heads=8). We addressed three root causes:
+
+1) KV cache layout and copy size were incorrect (and in FP32), causing segfaults during memcpy.
+2) All weights were upcast BF16→F32 globally, doubling memory to ~20 GB.
+3) A few lifetime/shape issues (dangling views from RoPE and safetensors, linear assuming F32/transposed) caused further crashes.
+
+What was wrong
+--------------
+- KV cache writes used n_heads and FP32 copy sizes into a cache intended to be FP16. With GQA, each KV head is shared by multiple Q heads, so indexing must iterate KV heads only.
+- Weight loader converted all tensors to F32, which doubled the resident model memory and pressured KV/activations.
+- rope_apply returned views to temporaries; once freed, later reads caused UAF.
+- ops::linear assumed F32-only and materialized a transposed W buffer; with wrong shapes this led to out-of-bounds writes.
+- Embedding row copy assumed F32 regardless of on-disk dtype.
+
+Fixes
+-----
+KV cache (GQA-safe, FP16):
+- Allocate KV as FP16 with shape [layers, seq_cap, n_kv_heads, head_dim].
+- Copy per KV head row only (head_dim * sizeof(fp16)).
+- Added helper offset and asserts; log expected KV memory at startup.
+- Read KV as FP16 and convert on-the-fly to F32 for matmul.
+
+Weights (no global upcast):
+- Keep weights in original dtype (BF16/F16/F32). Upcast only per element inside matmul for accumulation to F32.
+- Switched ops::linear to be dtype-aware (BF16/F16/F32) with F32 output, removed large transposed temp.
+
+Lifetime & shapes:
+- Safetensors mapping: store a shared_ptr owner inside ModelWeights to keep the mmap alive for the lifetime of the model.
+- RoPE: made rope_apply return owning Tensors (not views), avoiding use-after-free.
+- Added shape checks in attention for Wq/Wk/Wv/Wo consistent with GQA:
+  * Wq: [n_q_heads*d_head, d_model]
+  * Wk/Wv: [n_kv_heads*d_head, d_model]
+  * Wo: [d_model, n_q_heads*d_head]
+- Embeddings: dtype-aware row copy BF16/F16/F32 → F32 working buffer.
+
+Validation
+----------
+- Built with AddressSanitizer; crashes moved from KV memcpy to linear OOB, then to RoPE UAF, then resolved.
+- Final run shows KV memory log, GQA KV writes per head, and forward proceeds without segfaults.
+
+Impact
+------
+- KV memory ~0.25–0.5 GB at 2–4k tokens (FP16), no FP32 duplication.
+- Model weights stay compact (BF16/F16), no global F32 duplication.
+- GQA indexing is correct; no buffer overruns.
+
+Notes
+-----
+- The per-step [KVWrite] logs are verbose and can be disabled for performance once verified.
+- Batch remains capped at 1 and logits buffer is only [vocab_size].
